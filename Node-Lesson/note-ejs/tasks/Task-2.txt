@@ -1,0 +1,2 @@
+Title : Task 2
+Details:create route for hompage and crate index.ejs file

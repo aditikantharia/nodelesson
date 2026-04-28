@@ -1,0 +1,117 @@
+export const categories = [
+  "All",
+  "Electronics",
+  "Home",
+  "Fashion",
+  "Beauty",
+  "Fitness",
+  "Toys",
+];
+
+export const products = [
+  {
+    id: "p1",
+    name: "Smart Fitness Watch",
+    category: "Electronics",
+    price: 129.99,
+    stock: 24,
+    rating: 4.7,
+    description:
+      "Track workouts, sleep, and notifications with a premium AMOLED display.",
+    image: "https://picsum.photos/id/1011/900/600",
+    featured: true,
+    offer: "20% OFF",
+  },
+  {
+    id: "p2",
+    name: "Wireless Earbuds",
+    category: "Electronics",
+    price: 59.99,
+    stock: 32,
+    rating: 4.5,
+    description: "Noise-cancelling earbuds with 30 hours battery life.",
+    image: "https://picsum.photos/id/1027/900/600",
+    featured: true,
+    offer: "Buy 1 Get 1",
+  },
+  {
+    id: "p3",
+    name: "Modern Sofa Chair",
+    category: "Home",
+    price: 219.99,
+    stock: 10,
+    rating: 4.3,
+    description: "Comfortable accent chair with soft fabric and curved design.",
+    image: "https://picsum.photos/id/1036/900/600",
+    featured: false,
+    offer: "Free Shipping",
+  },
+  {
+    id: "p4",
+    name: "Denim Jacket",
+    category: "Fashion",
+    price: 79.99,
+    stock: 18,
+    rating: 4.6,
+    description: "Classic denim jacket with a modern slim fit.",
+    image: "https://picsum.photos/id/1024/900/600",
+    featured: true,
+    offer: "15% OFF",
+  },
+  {
+    id: "p5",
+    name: "Yoga Mat",
+    category: "Fitness",
+    price: 34.99,
+    stock: 40,
+    rating: 4.8,
+    description: "Eco-friendly yoga mat with extra grip and cushioning.",
+    image: "https://picsum.photos/id/1074/900/600",
+    featured: false,
+    offer: "Limited Stock",
+  },
+  {
+    id: "p6",
+    name: "Kids Building Blocks",
+    category: "Toys",
+    price: 24.99,
+    stock: 56,
+    rating: 4.9,
+    description: "Creative block set for kids ages 4+ to build and play.",
+    image: "https://picsum.photos/id/1047/900/600",
+    featured: false,
+    offer: "3-Day Sale",
+  },
+];
+
+export const banners = [
+  {
+    id: "b1",
+    title: "Seasonal Sale",
+    description: "Up to 50% off on curated picks for spring.",
+    cta: "Shop Now",
+    link: "/products",
+    color: "from-cyan-500 to-blue-600",
+  },
+  {
+    id: "b2",
+    title: "New Arrivals",
+    description: "Fresh launches added to our fashion and home collections.",
+    cta: "Explore",
+    link: "/products",
+    color: "from-purple-500 to-pink-500",
+  },
+];
+
+export const deals = [
+  {
+    id: "d1",
+    title: "Flash Offer",
+    detail: "Smart products under $100 with free delivery.",
+  },
+  {
+    id: "d2",
+    title: "Bundle Deals",
+    detail: "Save more when you buy two or more items from the same category.",
+  },
+];

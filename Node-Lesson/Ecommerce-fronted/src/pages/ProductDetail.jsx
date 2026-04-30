@@ -6,9 +6,10 @@ import ShopLayout from "../components/ShopLayout";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, toggleWishlist } = useContext(DataContext);
+  const { products, addToCart, toggleWishlist, wishlist, token } = useContext(DataContext);
 
   const product = products.find((item) => item.id === id);
+  const isWishlisted = product ? wishlist.some((item) => item.id === product.id) : false;
   if (!product) {
     return (
       <ShopLayout>
@@ -62,18 +63,29 @@ const ProductDetailPage = () => {
             <button
               disabled={product.stock === 0}
               onClick={() => {
+                if (!token) {
+                  alert("Please login to buy products.");
+                  navigate("/login");
+                  return;
+                }
                 addToCart(product);
                 navigate("/cart");
               }}
-              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="w-full rounded-2xl px-4 py-4 font-bold shadow-lg transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, #4f46e5 0%, #ec4899 100%)", color: "white" }}
             >
-              {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+              {product.stock === 0 ? "Out of Stock" : "Add to Cart / Buy"}
             </button>
             <button
               onClick={() => toggleWishlist(product)}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+              className={`flex items-center justify-center gap-2 w-full rounded-2xl px-4 py-4 font-bold border-2 transition-all hover:scale-105 active:scale-95 ${
+                isWishlisted
+                  ? "border-rose-500 bg-rose-50 text-rose-600 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+              }`}
             >
-              Add to Wishlist
+              <span className={`text-xl ${isWishlisted ? "animate-bounce" : ""}`}>{isWishlisted ? "♥" : "♡"}</span>
+              {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             </button>
           </div>
         </aside>

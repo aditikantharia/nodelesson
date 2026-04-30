@@ -28,7 +28,7 @@ export default function LoginPage() {
         localStorage.setItem("token", data.token);
         setToken(data.token);
         setCenterData(data.checkUser);
-        navigate("/products");
+        navigate("/");
       }
 
       setEmail("");
@@ -108,7 +108,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <button className="w-full py-3 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+          <button className="btn-primary w-full py-3 rounded-xl text-sm font-medium">
             Continue
           </button>
         </form>

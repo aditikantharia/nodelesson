@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3010",
+    "dev": "vite --port 3005",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
+    "dotenv": "^17.4.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.14.0",

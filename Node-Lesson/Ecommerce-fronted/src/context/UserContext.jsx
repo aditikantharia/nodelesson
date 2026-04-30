@@ -19,6 +19,20 @@ const UserContext = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [products, setProducts] = useState(mockProducts);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (centerData) {
@@ -121,6 +135,7 @@ const UserContext = ({ children }) => {
               rating: product.rating ?? 4.5,
               image: product.images?.[0] || "/product-placeholder.svg",
               offer: product.discount ? `${product.discount}% OFF` : "",
+              featured: product.isNewproduct || false,
             })),
           );
         }
@@ -139,61 +154,58 @@ const UserContext = ({ children }) => {
   }, [wishlist, token]);
 
   const addToCart = async (product) => {
-    if (token) {
-      try {
-        const item = { productId: product.id, quantity: 1 };
-        const response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/cart/add`,
-          { item },
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-
-        const backendCart = response.data.cart?.items || [];
-        setCart(
-          backendCart.map((cartItem) => ({
-            id: cartItem.productId,
-            name: cartItem.productName || "",
-            image: cartItem.productImage || "/product-placeholder.svg",
-            price: cartItem.productPrice ?? 0,
-            quantity: cartItem.quantity,
-            category: cartItem.category || "",
-          })),
-        );
-        return;
-      } catch (error) {
-        console.warn("Cart backend failed", error?.response?.data || error.message);
-      }
+    if (!token) {
+      alert("તમારે પહેલા Login કરવું પડશે! (Please login first to save data to database)");
+      window.location.href = "/login";
+      return;
     }
-
-    setCart((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
-      if (exists) {
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
-        );
-      }
-
-      return [...prev, { ...product, quantity: 1 }];
-    });
+    try {
+      const item = { productId: product.id, quantity: 1 };
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/cart/add`,
+        { item },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      alert(response.data.message);
+      const backendCart = response.data.cart?.items || [];
+      setCart(
+        backendCart.map((cartItem) => ({
+          id: cartItem.productId,
+          name: cartItem.productName || "",
+          image: cartItem.productImage || "/product-placeholder.svg",
+          price: cartItem.productPrice ?? 0,
+          quantity: cartItem.quantity,
+          category: cartItem.category || "",
+        })),
+      );
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to add to cart");
+    }
   };
 
   const removeFromCart = async (id) => {
-    if (token) {
-      try {
-        await axios.delete(`${import.meta.env.VITE_BASE_URL}/cart/product/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCart((prev) => prev.filter((item) => item.id !== id));
-        return;
-      } catch (error) {
-        console.warn("Cart remove backend failed", error?.response?.data || error.message);
-      }
+    if (!token) {
+      alert("તમારે પહેલા Login કરવું પડશે!");
+      window.location.href = "/login";
+      return;
     }
-
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/cart/product/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCart((prev) => prev.filter((item) => item.id !== id));
+      alert("Item removed from cart");
+    } catch (error) {
+      alert("Failed to remove item");
+    }
   };
 
   const updateCartQty = (id, quantity) => {
+    if (!token) {
+      alert("તમારે પહેલા Login કરવું પડશે!");
+      window.location.href = "/login";
+      return;
+    }
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -203,39 +215,34 @@ const UserContext = ({ children }) => {
   };
 
   const toggleWishlist = async (product) => {
-    if (token) {
-      try {
-        const item = { productId: product.id };
-        const response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/wishlist/add`,
-          { item },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        const backendWishlist = response.data.wishlist?.productIds || [];
-        setWishlist(
-          backendWishlist.map((item) => ({
-            id: item.productId,
-            name: item.productName || "",
-            image: item.productImage || "/product-placeholder.svg",
-            category: item.category || "",
-            price: item.price ?? 0,
-          })),
-        );
-        return;
-      } catch (error) {
-        console.warn("Wishlist backend failed", error?.response?.data || error.message);
-      }
+    if (!token) {
+      alert("Wishlist માં એડ કરવા માટે પહેલા Login કરો! (Please login to add to wishlist)");
+      window.location.href = "/login";
+      return;
     }
-
-    setWishlist((prev) => {
-      if (prev.some((item) => item.id === product.id)) {
-        return prev.filter((item) => item.id !== product.id);
-      }
-      return [...prev, product];
-    });
+    try {
+      const item = { productId: product.id };
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/wishlist/add`,
+        { item },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      alert(response.data.message);
+      
+      // Update from backend response
+      const backendWishlist = response.data.wishlist?.productIds || [];
+      setWishlist(
+        backendWishlist.map((item) => ({
+          id: item.productId,
+          name: item.productName || "",
+          image: item.productImage || "/product-placeholder.svg",
+          category: item.category || "",
+          price: item.price ?? 0,
+        })),
+      );
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update wishlist");
+    }
   };
 
   const clearCart = () => setCart([]);
@@ -278,6 +285,8 @@ const UserContext = ({ children }) => {
         setSearchQuery,
         selectedCategory,
         setSelectedCategory,
+        theme,
+        toggleTheme,
         products,
         setProducts,
       }}

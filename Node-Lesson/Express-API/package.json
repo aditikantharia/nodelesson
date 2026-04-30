@@ -4,6 +4,8 @@
   "description": "├── config/         🔧  Settings (DB connection, env vars, logger) ├── models/         🗃️  Database table shapes (Mongoose schemas) ├── middlewares/    🚦  Code that runs BEFORE your handler (auth, validation, rate-limit) ├── routes/         🗺️  URL → handler mapping (what URL calls what function) ├── controllers/    📬  Receives the HTTP request, sends the HTTP response ├── services/       🧠  The actual business logic (talks to the DB) └── utils/          🔨  Reusable helpers (ApiError, ApiResponse, catchAsync)",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

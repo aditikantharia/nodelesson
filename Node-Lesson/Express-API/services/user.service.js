@@ -57,7 +57,8 @@ module.exports.forgetPassword = async (email) => {
   // token will be validate only 15 minutes, after 15 minutes token will be expiry and you can't reset your password
   await user.save();
 
-  const resetLink = `http://localhost:3002/reset-password/${token}`;
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3002";
+  const resetLink = `${frontendUrl}/reset-password/${token}`;
   // resetLink = frontend page link that show newPassword filed with change password btn
 
   await transporter.sendMail({

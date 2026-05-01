@@ -1,10 +1,12 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ShopLayout from "../components/ShopLayout";
 import { DataContext } from "../context/UserContext";
 
 const AdminPanel = () => {
-  const { products, setProducts, orders, token } = useContext(DataContext);
+  const { products, setProducts, orders, token, centerData } = useContext(DataContext);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("products"); // 'products', 'add', 'orders'
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -25,6 +27,12 @@ const AdminPanel = () => {
     const { name, value, type, checked } = e.target;
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
+
+  useEffect(() => {
+    if (!token || !centerData || centerData.role !== "admin") {
+      navigate("/login");
+    }
+  }, [token, centerData, navigate]);
 
   const updateStock = async (id, delta) => {
     const product = products.find(p => p.id === id);
@@ -81,38 +89,54 @@ const AdminPanel = () => {
     try {
       if (editingProduct) {
         // Update
-        const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/product/${editingProduct}`, 
+        const response = await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/product/${editingProduct}`,
           productPayload,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
-        
-        setProducts(products.map(p => p.id === editingProduct ? { 
-          ...form, 
-          price: Number(form.price), 
-          stock: Number(form.stock), 
-          rating: Number(form.rating) 
-        } : p));
+
+        const backendProduct = response.data.product || response.data.updatedProduct || {};
+        const updatedProduct = {
+          id: backendProduct._id || editingProduct,
+          name: backendProduct.name || form.name,
+          category: backendProduct.category || form.category,
+          description: backendProduct.description || form.description,
+          price: Number(backendProduct.price ?? form.price),
+          stock: Number(backendProduct.stock ?? form.stock),
+          rating: Number(backendProduct.rating ?? form.rating),
+          image: backendProduct.images?.[0] || form.image || "/product-placeholder.svg",
+          offer: backendProduct.discount ? `${backendProduct.discount}% OFF` : form.offer,
+          featured: backendProduct.isNewproduct ?? form.featured,
+        };
+
+        setProducts(products.map((p) => (p.id === editingProduct ? updatedProduct : p)));
         alert("Product updated successfully!");
       } else {
         // Add
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/product/add`, 
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/product/add`,
           productPayload,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
-        
+
         const backendProduct = response.data.product || {};
-        
         const newProduct = {
-          ...form,
           id: backendProduct._id || Date.now().toString(),
-          price: Number(form.price),
-          stock: Number(form.stock),
-          rating: Number(form.rating)
+          name: backendProduct.name || form.name,
+          category: backendProduct.category || form.category,
+          description: backendProduct.description || form.description,
+          price: Number(backendProduct.price ?? form.price),
+          stock: Number(backendProduct.stock ?? form.stock),
+          rating: Number(backendProduct.rating ?? form.rating),
+          image: backendProduct.images?.[0] || form.image || "/product-placeholder.svg",
+          offer: backendProduct.discount ? `${backendProduct.discount}% OFF` : form.offer,
+          featured: backendProduct.isNewproduct ?? form.featured,
         };
+
         setProducts([newProduct, ...products]);
         alert("Product added successfully!");
       }
-      
+
       // Reset
       setEditingProduct(null);
       setForm({ name: "", category: "", price: "", description: "", image: "", stock: 10, rating: 0, featured: false, offer: "" });
@@ -121,6 +145,22 @@ const AdminPanel = () => {
       alert("Failed to save product: " + (error.response?.data?.message || error.message));
     }
   };
+
+  if (!token || !centerData || centerData.role !== "admin") {
+    return (
+      <ShopLayout>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:bg-slate-900 dark:border-slate-800 text-center">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white">Admin Access Required</h1>
+          <p className="mt-4 text-slate-600 dark:text-slate-400 max-w-xl">
+            Only admin users can manage products here. Please log in with an admin account.
+          </p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Default admin credentials: <strong>admin@admin.com</strong> / <strong>admin123</strong>
+          </p>
+        </div>
+      </ShopLayout>
+    );
+  }
 
   return (
     <ShopLayout>
@@ -176,7 +216,7 @@ const AdminPanel = () => {
                       </div>
                       <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">${Number(product.price).toFixed(2)}</p>
                       
-                      <div className="flex items-center gap-4 mt-4 bg-white p-2 rounded-xl border border-slate-200 inline-flex dark:bg-slate-900 dark:border-slate-700">
+                      <div className="inline-flex items-center gap-4 mt-4 bg-white p-2 rounded-xl border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-400">Stock</span>
                         <div className="flex items-center gap-2">
                           <button onClick={() => updateStock(product.id, -1)} className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-400">-</button>

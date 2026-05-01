@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { DataContext } from "../context/UserContext";
 
 const Header = () => {
-  const { cart, wishlist, searchQuery, setSearchQuery, token, setToken, setCenterData, theme, toggleTheme } = useContext(DataContext);
+  const { cart, wishlist, searchQuery, setSearchQuery, token, setToken, setCenterData, theme, toggleTheme, centerData } = useContext(DataContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -19,7 +19,7 @@ const Header = () => {
     { label: "Products", to: "/products" },
     { label: "Wishlist", to: "/wishlist", showCount: true },
     { label: "Support", to: "/support" },
-    { label: "Admin", to: "/admin" },
+    ...(centerData?.role === "admin" ? [{ label: "Admin", to: "/admin" }] : []),
   ];
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);

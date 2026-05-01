@@ -14,6 +14,7 @@ const cartRouter = require("./routes/web/v1/cart.route");
 const orderRouter = require("./routes/web/v1/order.route");
 const wishlistRouter = require("./routes/web/v1/wishlist.route");
 const productModel = require("./models/product.model");
+const userModel = require("./models/user.model");
 
 const app = express();
 
@@ -23,7 +24,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ✅ DB connection FIX
-db();
+db()
+  .then(async () => {
+    try {
+      const existingAdminByEmail = await userModel.findOne({ email: "admin@admin.com" });
+      if (!existingAdminByEmail) {
+        const hashedPassword = await userModel.hashPassword("admin123");
+        await userModel.create({
+          username: "admin",
+          email: "admin@admin.com",
+          password: hashedPassword,
+          role: "admin",
+        });
+        console.log("✅ Default admin created: admin@admin.com / admin123");
+      } else {
+        console.log("ℹ️ Default admin already exists: admin@admin.com");
+      }
+    } catch (error) {
+      console.error("❌ Default admin creation failed:", error.message);
+    }
+  })
+  .catch((err) => console.error("❌ DB connection failed:", err.message));
 
 // ✅ CORS FIX (MAIN ISSUE SOLVED)
 app.use(cors({

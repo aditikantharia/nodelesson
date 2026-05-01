@@ -2,13 +2,10 @@ const mongoose = require("mongoose");
 // const dbgr = require("debug")("development:server");
 // const config = require("config");
 
-function connetToDB() {
-  mongoose
-    .connect(process.env.MONGO_URL)
-    .then(() => {
-      console.log("📊 Mongodb Conected");
-    })
-    .catch((err) => console.log(err));
+function connectToDB() {
+  return mongoose.connect(process.env.MONGO_URL).then(() => {
+    console.log("📊 Mongodb Connected");
+  });
 }
 
 // function connetToDB() {
@@ -20,4 +17,4 @@ function connetToDB() {
 //     .catch((err) => dbgr(err));
 // }
 
-module.exports = connetToDB;
+module.exports = connectToDB;

@@ -35,7 +35,7 @@ module.exports.createProduct = async (req, res) => {
     category,
   });
 
-  return res.status(200).json({ msg: "Product Added Sucessfully", product });
+  return res.status(200).json({ message: "Product added successfully", product });
 };
 
 // all products
@@ -101,7 +101,7 @@ module.exports.updateProduct = async (req, res) => {
 
   return res
     .status(200)
-    .json({ message: "User Update Sucessfully", updatedProduct });     
+    .json({ message: "Product updated successfully", product: updatedProduct });
 };
 
 // delete product
@@ -115,7 +115,7 @@ module.exports.deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product Not Found !!" });
     }
 
-    return res.status(200).json({ message: "Product Deleted Successfully" });
+    return res.status(200).json({ message: "Product deleted successfully", product: deletedProduct });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

@@ -3,37 +3,56 @@ const productService = require("../services/product.service");
 
 // create product
 module.exports.createProduct = async (req, res) => {
-  const {
-    name,
-    category,
-    brand,
-    price,
-    discount,
-    stock,
-    image,
-    sku,
-    discription,
-  } = req.body;
+  try {
+    const {
+      name,
+      category,
+      brand,
+      price,
+      discount,
+      stock,
+      image,
+      images,
+      sku,
+      discription,
+      description,
+    } = req.body;
 
-  const exist = await productModel.findOne({ sku: sku });
+    const exist = await productModel.findOne({ sku: sku });
 
-  if (exist) {
-    return res.status(400).json({ message: "Product Already Register" });
+    if (exist) {
+      return res.status(400).json({ message: "Product Already Register" });
+    }
+
+    const product = await productService.createProduct({
+      name,
+      category,
+      brand,
+      price,
+      discount,
+      stock,
+      image,
+      images,
+      sku,
+      discription,
+      description,
+    });
+
+    const responseProduct = product.toObject ? product.toObject() : product;
+    responseProduct.description = responseProduct.description || responseProduct.discription;
+    responseProduct.images = responseProduct.images || responseProduct.image;
+
+    res.status(201).json({ message: "Product Created Sucessfully", product: responseProduct });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   }
+};
 
-  const product = await productService.createProduct({
-    name,
-    category,
-    brand,
-    price,
-    discount,
-    stock,
-    image,
-    sku,
-    discription,
-  });
-
-  res.status(201).json({ message: "Product Created Sucessfully", product });
+const normalizeResponse = (product) => {
+  const responseProduct = product.toObject ? product.toObject() : product;
+  responseProduct.description = responseProduct.description || responseProduct.discription;
+  responseProduct.images = responseProduct.images || responseProduct.image;
+  return responseProduct;
 };
 
 // find one product
@@ -47,7 +66,7 @@ module.exports.singleProduct = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Product Fetch Successfully", product });
+      .json({ message: "Product Fetch Successfully", product: normalizeResponse(product) });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
@@ -64,7 +83,7 @@ module.exports.getAllProduct = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Fecth All Product Sucessfully !!", products });
+      .json({ message: "Fecth All Product Sucessfully !!", products: products.map(normalizeResponse) });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -72,36 +91,44 @@ module.exports.getAllProduct = async (req, res) => {
 
 // update product
 module.exports.updateProduct = async (req, res) => {
-  const productId = req.params.id;
+  try {
+    const productId = req.params.id;
 
-  const {
-    name,
-    category,
-    brand,
-    price,
-    discount,
-    stock,
-    image,
-    sku,
-    discription,
-  } = req.body;
+    const {
+      name,
+      category,
+      brand,
+      price,
+      discount,
+      stock,
+      image,
+      images,
+      sku,
+      discription,
+      description,
+    } = req.body;
 
-  const updateProduct = await productService.updateProduct({
-    productId,
-    name,
-    category,
-    brand,
-    price,
-    discount,
-    stock,
-    image,
-    sku,
-    discription,
-  });
+    const updatedProduct = await productService.updateProduct({
+      productId,
+      name,
+      category,
+      brand,
+      price,
+      discount,
+      stock,
+      image,
+      images,
+      sku,
+      discription,
+      description,
+    });
 
-  res
-    .status(200)
-    .json({ message: "Product Updated Sucessfully", updateProduct });
+    res
+      .status(200)
+      .json({ message: "Product Updated Sucessfully", product: normalizeResponse(updatedProduct) });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
 };
 
 // delete product

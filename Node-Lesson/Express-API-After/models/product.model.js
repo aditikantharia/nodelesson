@@ -5,39 +5,39 @@ let ProductSchema = mongoose.Schema(
     name: {
       type: String,
       minLength: 3,
-      reuired: true,
+      required: true,
     },
     category: {
       type: String,
       minLength: 5,
-      reuired: true,
+      required: true,
     },
     brand: {
       type: String,
       minLength: 3,
-      reuired: true,
+      required: true,
     },
     price: {
       type: Number,
       default: 0,
-      minLength: 0,
-      reuired: true,
+      min: 0,
+      required: true,
     },
     discount: {
       type: Number,
       default: 0,
-      minLength: 0,
+      min: 0,
     },
     stock: {
       type: Number,
       default: 0,
-      minLength: 0,
-      reuired: true,
+      min: 0,
+      required: true,
     },
     image: [
       {
         type: String,
-        reuired: true,
+        required: true,
       },
     ],
     sku: {
@@ -47,7 +47,7 @@ let ProductSchema = mongoose.Schema(
     },
     discription: {
       type: String,
-      reuired: true,
+      required: true,
       minLength: 10,
     },
   },

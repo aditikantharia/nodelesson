@@ -1,7 +1,6 @@
 const productModel = require("../models/product.model");
 
-// create product
-module.exports.createProduct = async ({
+const normalizeProductPayload = ({
   name,
   category,
   brand,
@@ -9,33 +8,40 @@ module.exports.createProduct = async ({
   discount,
   stock,
   image,
+  images,
   sku,
   discription,
-}) => {
+  description,
+}) => ({
+  name,
+  category,
+  brand,
+  price,
+  discount,
+  stock,
+  image: Array.isArray(images) ? images : image ? [image] : [],
+  sku,
+  discription: description || discription,
+});
+
+// create product
+module.exports.createProduct = async (payload) => {
+  const normalized = normalizeProductPayload(payload);
+
   if (
-    !name ||
-    !category ||
-    !brand ||
-    !price ||
-    !stock ||
-    !image ||
-    !sku ||
-    !discription
+    !normalized.name ||
+    !normalized.category ||
+    !normalized.brand ||
+    normalized.price == null ||
+    normalized.stock == null ||
+    normalized.image.length === 0 ||
+    !normalized.sku ||
+    !normalized.discription
   ) {
-    throw new Error("All Filed are Required !!");
+    throw new Error("All fields are required !!");
   }
 
-  let product = await productModel.create({
-    name,
-    category,
-    brand,
-    price,
-    discount,
-    stock,
-    image,
-    sku,
-    discription,
-  });
+  let product = await productModel.create(normalized);
 
   return product;
 };
@@ -51,21 +57,13 @@ module.exports.AllProduct = async () => {
 };
 
 // update product
-module.exports.updateProduct = async ({
-  productId,
-  name,
-  category,
-  brand,
-  price,
-  discount,
-  stock,
-  image,
-  sku,
-  discription,
-}) => {
+module.exports.updateProduct = async (payload) => {
+  const { productId } = payload;
+  const normalized = normalizeProductPayload(payload);
+
   const updatedProduct = await productModel.findOneAndUpdate(
     { _id: productId },
-    { name, category, brand, price, discount, stock, image, sku, discription },
+    normalized,
     { new: true },
   );
 
